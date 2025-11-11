@@ -35,17 +35,14 @@ export async function handleImageAnalysisAction(photoDataUri: string): Promise<A
       return { error: 'Analysis returned no valid predictions.' };
     }
 
-    const routine = await getPersonalizedSkincareRoutine({
-      skinCondition: topPrediction.condition,
-      probability: topPrediction.probability,
-    });
-    
+    // Disable AI routine text on request; just return predictions.
+    // If you ever want to re-enable, call getPersonalizedSkincareRoutine here.
     return {
       predictions: analysis.predictions,
-      recommendations: routine.recommendations,
+      recommendations: '',
     };
   } catch (error) {
     console.error('Error during image analysis action:', error);
-    return { error: 'An unexpected error occurred during analysis. Please try again later.' };
+    return { error: 'Could not analyze the image. Please ensure the Python server is running and try a different photo.' };
   }
 }

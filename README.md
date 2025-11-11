@@ -25,6 +25,11 @@ This is a Next.js web application that uses a custom, locally-run Python CNN mod
 
 This project requires two separate processes to be running simultaneously: the **Next.js website** and the **Python Flask API**.
 
+Update (2025-11-11)
+- The Python API now defaults to EfficientNet preprocessing to match the trained model (EfficientNetV2B0). This fixes "same output for different images" issues.
+- Class labels are served from `class_labels.json` using the full HAM10000 names.
+- The AI skincare routine is disabled by default so the site focuses on the model’s predictions. You can re‑enable it by setting a Gemini/Google API key (see below).
+
 ### Prerequisites
 
 - **Node.js**: Version 18 or later.
@@ -70,12 +75,29 @@ Now, **open a new, separate terminal** and navigate to the same project root dir
 2.  **Ensure Model File is Present**:
     Make sure your trained model file, `skin_condition_model.h5`, is in the root directory of the project.
 
-3.  **Run the Python Server**:
+3.  **Run the Python Server** (EfficientNet preprocessing is enabled by default):
     ```bash
     python main.py
     ```
-    You should see a message like "✅ Model loaded successfully." Your Python API is now running and ready to receive requests.
+    You should see messages like:
+    - `Using EfficientNetV2 preprocess_input`
+    - `✅ Model loaded successfully.`
+
+    Notes:
+    - Place your trained model file as `skin_condition_model.h5` in the project root, or set `MODEL_PATH=/full/path/to/model.h5`.
+    - The file `class_labels.json` controls the display names and class order. Keep it aligned with your training generator order.
+    - To switch back to a simple `/255` normalization (not recommended for this model), run: `PREPROCESS=rescale python main.py`.
 
 ### Step 3: Use the Application
 
-With both servers running, you can now open your web browser to `http://localhost:9002`. Navigate to the "Analyze" section, upload an image, and see your custom model in action!
+With both servers running, open `http://localhost:9002`, go to the Analyze section, upload an image, and you’ll see probabilities for all 7 HAM10000 classes rendered as a bar chart and a pie chart.
+
+### Optional: Re‑enable AI skincare routine
+If you want to generate a text routine, set an API key and restart the site:
+```bash
+# .env.local
+GEMINI_API_KEY=YOUR_KEY
+# or
+GOOGLE_API_KEY=YOUR_KEY
+```
+If a key is not provided, the routine section is hidden and only model predictions are shown.
